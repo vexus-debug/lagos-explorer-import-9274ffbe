@@ -9,6 +9,7 @@ import { buildTileIndex } from "../map/tiles";
 import { initAudio, setVolume } from "../audio/audio";
 import { attachDesktopInput, input } from "../player/input";
 import { MobileControls } from "../player/MobileControls";
+import { MiniMap } from "./MiniMap";
 import { Player } from "../player/Player";
 import { qualityConfig, useGame } from "../store/game";
 import { Atmosphere } from "../world/Atmosphere";
@@ -167,6 +168,7 @@ export function Game() {
         <DebugProbe />
       </Canvas>
       <Hud />
+      {!paused && <MiniMap />}
       {input.mobile && !paused && <MobileControls />}
     </div>
   );

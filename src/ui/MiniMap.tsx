@@ -6,9 +6,11 @@ import { worldState } from "../world/worldState";
 
 const SCALE = 0.25; // px per metre in the base image
 let base: HTMLCanvasElement | null = null;
+let baseFor: unknown = null;
 
 function getBase() {
-  if (base) return base;
+  if (base && baseFor === worldState.data) return base;
+  baseFor = worldState.data;
   const bb = bboxMeters();
   const pad = 200;
   const c = document.createElement("canvas");
