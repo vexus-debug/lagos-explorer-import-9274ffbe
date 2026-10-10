@@ -3,6 +3,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
 import { SPAWN_LATLON, bboxMeters, project } from "../map/config";
 import { LandMask } from "../map/landMask";
+import { findRoadSpawn } from "../map/spawn";
 import { loadMapData } from "../map/loadMap";
 import { buildTileIndex } from "../map/tiles";
 import { initAudio, setVolume } from "../audio/audio";
@@ -22,19 +23,11 @@ async function prepare(rebuild: boolean) {
   const bb = bboxMeters();
   worldState.data = data;
   worldState.index = buildTileIndex(data);
-  worldState.land = new LandMask(bb.minX - 60, bb.minZ - 60, bb.maxX + 60, bb.maxZ + 60, data.land);
-  // Spawn on the road nearest Marina (prefer one named "Marina")
+  worldState.land = new LandMask(bb.minX - 60, bb.minZ - 60, bb.maxX + 60, bb.maxZ + 60, data.land, data.roads);
+  // Spawn on an open road near Marina
   const [sx, sz] = project(SPAWN_LATLON.lat, SPAWN_LATLON.lon);
-  let best = { d: Infinity, x: 0, z: 0, yaw: 0 };
-  for (const r of data.roads) {
-    if (r.foot || r.bridge) continue;
-    const bonus = r.name?.includes("Marina") ? -300 : 0;
-    for (let i = 0; i + 3 < r.pts.length; i += 2) {
-      const d = Math.hypot(r.pts[i] - sx, r.pts[i + 1] - sz) + bonus;
-      if (d < best.d && worldState.land.isLand(r.pts[i], r.pts[i + 1]))
-        best = { d, x: r.pts[i], z: r.pts[i + 1], yaw: Math.atan2(-(r.pts[i + 2] - r.pts[i]), -(r.pts[i + 3] - r.pts[i + 1])) };
-    }
-  }
+  const sp = findRoadSpawn(data.roads, sx, sz);
+  const best = sp ? { x: sp.x, z: sp.z, yaw: sp.yaw } : { x: sx, z: sz, yaw: 0 };
   worldState.spawn = [best.x, 1.2, best.z];
   worldState.playerPos = { x: best.x, y: 1.2, z: best.z };
   worldState.playerYaw = best.yaw;
