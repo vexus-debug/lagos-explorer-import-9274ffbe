@@ -35,6 +35,22 @@ export function Ground() {
       }
       void signedArea;
     }
+    // Solid ground from the land mask (covers streets where OSM land polygons are missing).
+    const m = worldState.land;
+    if (m) {
+      const y = 0.005;
+      for (let r = 0; r < m.h; r++) {
+        let c = 0;
+        while (c < m.w) {
+          if (m.data[r * m.w + c] !== 1) { c++; continue; }
+          const s = c;
+          while (c < m.w && m.data[r * m.w + c] === 1) c++;
+          const x0 = m.minX + s * m.cell, x1 = m.minX + c * m.cell;
+          const z0 = m.minZ + r * m.cell, z1 = z0 + m.cell;
+          pos.push(x0, y, z0, x0, y, z1, x1, y, z1, x0, y, z0, x1, y, z1, x1, y, z0);
+        }
+      }
+    }
     const lg = new THREE.BufferGeometry();
     lg.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
     lg.computeVertexNormals();
