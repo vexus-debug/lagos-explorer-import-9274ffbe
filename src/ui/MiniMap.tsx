@@ -115,16 +115,17 @@ export function MiniMap() {
     <>
       <button
         aria-label="Open map"
-        onClick={(e) => { e.stopPropagation(); if (document.pointerLockElement) document.exitPointerLock(); toggleUi("fullMap"); }}
-        className="pointer-events-auto fixed right-3 top-3 z-20 h-32 w-32 overflow-hidden rounded-full border-2 border-foreground/70 shadow-lg md:h-40 md:w-40"
+        onPointerDown={(e) => { e.stopPropagation(); e.preventDefault(); set({ ui: { ...useGame.getState().ui, fullMap: true } }); if (document.pointerLockElement) document.exitPointerLock(); }}
+        onClick={(e) => e.stopPropagation()}
+        className="pointer-events-auto fixed right-3 top-3 z-40 touch-none h-32 w-32 overflow-hidden rounded-full border-2 border-foreground/70 shadow-lg md:h-40 md:w-40"
       >
         <canvas ref={small} className="h-full w-full" />
       </button>
       {ui.fullMap && (
-        <div className="pointer-events-auto fixed inset-0 z-30 flex flex-col bg-background/90 p-3 backdrop-blur" onClick={(e) => e.stopPropagation()}>
+        <div className="pointer-events-auto fixed inset-0 z-50 flex flex-col bg-background/90 p-3 backdrop-blur" onClick={(e) => e.stopPropagation()} onPointerDown={(e) => e.stopPropagation()}>
           <div className="mb-2 flex items-center justify-between">
             <div className="font-display text-xl text-primary">Lagos Island</div>
-            <button className="rounded-md bg-primary px-4 py-1.5 font-semibold text-primary-foreground" onClick={() => set({ ui: { ...useGame.getState().ui, fullMap: false } })}>Close</button>
+            <button className="rounded-md bg-primary px-4 py-1.5 font-semibold text-primary-foreground" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); set({ ui: { ...useGame.getState().ui, fullMap: false } }); }}>Close</button>
           </div>
           <canvas ref={big} className="w-full flex-1 rounded-md" />
         </div>
