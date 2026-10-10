@@ -121,7 +121,7 @@ export function Game() {
     };
     const lock = () => {
       const g = useGame.getState();
-      if (g.phase === "playing" && !document.pointerLockElement && !input.mobile) g.set({ paused: true });
+      if (g.phase === "playing" && !g.ui.fullMap && !document.pointerLockElement && !input.mobile) g.set({ paused: true });
     };
     window.addEventListener("keydown", key);
     document.addEventListener("pointerlockchange", lock);
@@ -157,7 +157,7 @@ export function Game() {
     );
 
   return (
-    <div className="fixed inset-0" onClick={() => { const g = useGame.getState(); if (!g.paused && !input.mobile && !document.pointerLockElement) document.body.requestPointerLock(); }}>
+    <div className="fixed inset-0" onClick={() => { const g = useGame.getState(); if (!g.paused && !g.ui.fullMap && !input.mobile && !document.pointerLockElement) document.body.requestPointerLock(); }}>
       <Canvas dpr={[1, q.dpr]} shadows={q.shadows} camera={{ fov: 70, near: 0.1, far: 1200 }}>
         <Physics gravity={[0, 0, 0]}>
           <Atmosphere />
@@ -168,8 +168,8 @@ export function Game() {
         <DebugProbe />
       </Canvas>
       <Hud />
-      {!paused && <MiniMap />}
       {input.mobile && !paused && <MobileControls />}
+      {!paused && <MiniMap />}
     </div>
   );
 }
